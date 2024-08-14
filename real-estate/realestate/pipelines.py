@@ -16,11 +16,13 @@ import pandas as pd
 
 from realestate.common import resource_def
 from realestate.common.helper_functions import reading_delta_table
+from realestate.common.types_realestate import SearchCoordinate, PropertyDataFrame, DeltaCoordinate
 
 from realestate.common.solids_scraping import (
     list_props_domain,
     cache_properties_from_rest_api,
 )
+
 
 @graph(
     description="Downloads full dataset (JSON) from ImmoScout24, cache it, zip it and and upload it to S3",

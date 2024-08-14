@@ -13,6 +13,7 @@ from dagster import (
 
 from dagster_aws.s3.ops import dict_with_fields
 
+
 SearchCoordinate = dict_with_fields(
     "SearchCoordinate",
     fields={
