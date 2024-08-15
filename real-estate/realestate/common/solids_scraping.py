@@ -5,10 +5,8 @@ import time
 import random
 import pandas as pd
 
-from .types_realestate import PropertyDataFrame, SearchCoordinate
+from realestate.common.types_realestate import PropertyDataFrame, SearchCoordinate, DeltaCoordinate
 
-
-SearchCoordinate.description
 from dagster import (
     Int, 
     op,
@@ -88,17 +86,6 @@ def list_props(context: OpExecutionContext, searchCriteria: SearchCoordinate) ->
         context.log.info(f"Status Code: {authenticate.status_code}")
         url = base_url + f"listings/{listing_ids[i]}"
         
-
-
-
-
-
-            
-
-        
-        
-
-
 
 
 @op(
