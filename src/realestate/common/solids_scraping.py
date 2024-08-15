@@ -60,7 +60,7 @@ def list_props(context: OpExecutionContext, searchCriteria: SearchCoordinate) ->
         )
         context.log.info(f"Search url: {url}")
         
-        listing_ids = []
+        ids = []
         for i in range(1,6):
             url = f"{base_url}?page={i}"
             response = requests.get(url, headers=headers)
@@ -72,7 +72,7 @@ def list_props(context: OpExecutionContext, searchCriteria: SearchCoordinate) ->
                     data_testid_value = element.get('data-testid')
                     if data_testid_value:
                         listing_id = re.sub(r'\D', '', data_testid_value)
-                        listing_ids.append(listing_id)
+                        ids.append(listing_id)
             else:
                 context.log.info(response)
 
@@ -84,7 +84,42 @@ def list_props(context: OpExecutionContext, searchCriteria: SearchCoordinate) ->
         context.log.info("Authenticating...")
         authenticate = requests.get(base_url + "me", headers=headers)
         context.log.info(f"Status Code: {authenticate.status_code}")
-        url = base_url + f"listings/{listing_ids[i]}"
+
+        # setup dataframe
+
+        url = base_url + f"listings/{ids[i]}"
+        response = requests.get(url, headers=headers)
+        if response.ok:
+            listing = response.json()
+        else:
+            context.log.info(f"Failed to initialize dataframe for: {url}")
+            raise RuntimeError
+
+        titles = list(listing.keys())
+
+        df = pd.DataFrame(columns = titles)
+
+        df = df.drop(columns=['status', 'geoLocation', 'isNewDevelopment', 'media', 'channel', 
+                              'rentalDetails', 'advertiserIdentifiers', 'inspectionDetails',
+                              'saleMode', 'description'])
+
+        for i in listing_ids:
+            url = f'{base_url}{i}'
+            response = requests.get(url, headers=headers)
+            if response.ok:
+                listing = response.json()
+                df.loc[len(df.index)] = listing
+
+        df['apmIdentifiers'] = df['addressParts'].apply(lambda x: x['suburb'])
+        df = df.rename(columns = {'apmIdentifiers': 'suburb'})
+
+        df['addressParts'] = df['addressParts'].apply(lambda x: x['displayAddress'])
+        df = df.rename(columns={'addressParts': 'fullAddress'})
+
+        df['priceDetails'] = df['priceDetails'].apply(lambda x: x['displayPrice'])
+        df = df.rename(columns={'priceDetails': 'displayPrice'})
+
+        return df
         
 
 

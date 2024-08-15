@@ -9,6 +9,7 @@ from dagster import (
     List,
     DynamicOut,
     DynamicOutput,
+    OpExecutionContext
 )
 # from typing import List
 
@@ -43,7 +44,7 @@ def list_changed_properties(search_criteria: SearchCoordinate):
     required_resource_keys={"fs_io_manager"},
     out=DynamicOut(io_manager_key="fs_io_manager"),
 )
-def collect_search_criterias(context, search_criterias: List[SearchCoordinate]):
+def collect_search_criterias(context: OpExecutionContext, search_criterias: List[SearchCoordinate]):
     for search in search_criterias:
         key = (
             "_".join(
